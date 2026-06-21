@@ -1,0 +1,113 @@
+/* ============================================================
+   PatientVoice — Color tokens
+   Clinical, calm, high-contrast healthcare SaaS palette.
+   Primary teal (#0E7490) + secondary teal-green (#14B8A6),
+   slate neutrals, and clear semantic states for SLA / triage.
+   ============================================================ */
+
+:root {
+  /* ---- Brand: primary (deep clinical teal / cyan-700) ---- */
+  --pv-primary-50:  #ecfeff;
+  --pv-primary-100: #cffafe;
+  --pv-primary-200: #a5f3fc;
+  --pv-primary-300: #67e8f9;
+  --pv-primary-400: #22b8cf;
+  --pv-primary-500: #0e98b3;
+  --pv-primary-600: #0e7490;  /* PRIMARY */
+  --pv-primary-700: #115e75;
+  --pv-primary-800: #155160;
+  --pv-primary-900: #164453;
+  --pv-primary:     #0e7490;
+
+  /* ---- Brand: secondary (teal / emerald accent) ---- */
+  --pv-secondary-50:  #f0fdfa;
+  --pv-secondary-100: #ccfbf1;
+  --pv-secondary-200: #99f6e4;
+  --pv-secondary-300: #5eead4;
+  --pv-secondary-400: #2dd4bf;
+  --pv-secondary-500: #14b8a6;  /* SECONDARY */
+  --pv-secondary-600: #0d9488;
+  --pv-secondary-700: #0f766e;
+  --pv-secondary:     #14b8a6;
+
+  /* ---- Neutrals: slate (text, surfaces, borders) ---- */
+  --pv-neutral-0:   #ffffff;
+  --pv-neutral-25:  #fbfcfd;
+  --pv-neutral-50:  #f8fafc;
+  --pv-neutral-100: #f1f5f9;
+  --pv-neutral-200: #e2e8f0;
+  --pv-neutral-300: #cbd5e1;
+  --pv-neutral-400: #94a3b8;
+  --pv-neutral-500: #64748b;
+  --pv-neutral-600: #475569;
+  --pv-neutral-700: #334155;
+  --pv-neutral-800: #1e293b;
+  --pv-neutral-900: #0f172a;
+
+  /* ---- Semantic: success (resolved, on-track) ---- */
+  --pv-success-50:  #ecfdf5;
+  --pv-success-100: #d1fae5;
+  --pv-success-500: #10b981;
+  --pv-success-600: #059669;
+  --pv-success-700: #047857;
+  --pv-success:     #059669;
+
+  /* ---- Semantic: warning (SLA 80%, due soon) ---- */
+  --pv-warning-50:  #fff7ed;
+  --pv-warning-100: #ffedd5;
+  --pv-warning-500: #f97316;
+  --pv-warning-600: #ea580c;
+  --pv-warning-700: #c2410c;
+  --pv-warning:     #ea580c;
+
+  /* ---- Semantic: critical (breach, urgent) ---- */
+  --pv-critical-50:  #fef2f2;
+  --pv-critical-100: #fee2e2;
+  --pv-critical-500: #ef4444;
+  --pv-critical-600: #dc2626;
+  --pv-critical-700: #b91c1c;
+  --pv-critical:     #dc2626;
+
+  /* ---- Semantic: info (notifications, neutral status) ---- */
+  --pv-info-50:  #eff6ff;
+  --pv-info-100: #dbeafe;
+  --pv-info-500: #3b82f6;
+  --pv-info-600: #2563eb;
+  --pv-info:     #2563eb;
+
+  /* ---- Accent: violet (analytics / praise highlight) ---- */
+  --pv-accent-50:  #f5f3ff;
+  --pv-accent-100: #ede9fe;
+  --pv-accent-500: #8b5cf6;
+  --pv-accent-600: #7c3aed;
+  --pv-accent:     #7c3aed;
+
+  /* ============================================================
+     SEMANTIC ALIASES — reference these in components
+     ============================================================ */
+
+  /* Surfaces */
+  --pv-bg-app:        var(--pv-neutral-50);   /* app canvas */
+  --pv-bg-sunken:     var(--pv-neutral-100);  /* wells, table headers */
+  --pv-surface-card:  var(--pv-neutral-0);    /* cards, panels */
+  --pv-surface-raised:var(--pv-neutral-0);
+  --pv-surface-nav:   var(--pv-neutral-900);  /* dark sidebar */
+  --pv-surface-nav-2: #14233b;                /* sidebar hover */
+
+  /* Text */
+  --pv-text-strong:   var(--pv-neutral-900);  /* headings */
+  --pv-text-body:     var(--pv-neutral-700);  /* body */
+  --pv-text-muted:    var(--pv-neutral-500);  /* secondary */
+  --pv-text-subtle:   var(--pv-neutral-400);  /* placeholder, meta */
+  --pv-text-on-primary: var(--pv-neutral-0);
+  --pv-text-on-nav:   #cbd6e6;
+  --pv-text-link:     var(--pv-primary-600);
+
+  /* Borders */
+  --pv-border:        var(--pv-neutral-200);  /* default hairline */
+  --pv-border-strong: var(--pv-neutral-300);
+  --pv-border-focus:  var(--pv-primary-600);
+
+  /* Interactive */
+  --pv-focus-ring:    color-mix(in srgb, var(--pv-primary-600) 35%, transparent);
+}

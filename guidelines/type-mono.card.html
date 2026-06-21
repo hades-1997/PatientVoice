@@ -1,0 +1,23 @@
+<!-- @dsCard group="Type" viewport="700x150" name="Mono — IDs, timers, metrics" subtitle="IBM Plex Mono with tabular figures" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--pv-font-sans); background: var(--pv-neutral-0); padding: 20px; color: var(--pv-text-strong); }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .cell { border: 1px solid var(--pv-border); border-radius: var(--pv-radius-md); padding: 14px; }
+  .k { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pv-text-muted); margin-bottom: 8px; }
+  .v { font-family: var(--pv-font-mono); font-feature-settings: 'tnum' 1; font-size: 22px; font-weight: 600; }
+  .sub { font-family: var(--pv-font-mono); font-size: 12px; color: var(--pv-text-muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell"><div class="k">Ticket ID</div><div class="v">PV-10293</div><div class="sub">channel: hotline</div></div>
+    <div class="cell"><div class="k">SLA countdown</div><div class="v" style="color:var(--pv-warning)">02:14:38</div><div class="sub">80% consumed</div></div>
+    <div class="cell"><div class="k">Compliance</div><div class="v" style="color:var(--pv-success)">94.2%</div><div class="sub">+1.8 vs last wk</div></div>
+  </div>
+</body>
+</html>

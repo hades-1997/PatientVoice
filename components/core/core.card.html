@@ -1,0 +1,60 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Core — Buttons, inputs, tabs" subtitle="Buttons, icon buttons, inputs, avatars, tabs" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--pv-font-sans); background: var(--pv-neutral-0); padding: 22px; color: var(--pv-text-strong); }
+  .group { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .lbl { width: 100%; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pv-text-subtle); margin-bottom: -2px; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const { Button, IconButton, Input, Avatar, Tabs } = window.PatientVoiceDesignSystem_16c56a;
+    function Demo() {
+      const [tab, setTab] = React.useState('table');
+      return (
+        <div>
+          <div className="group"><span className="lbl">Buttons</span>
+            <Button variant="primary" iconLeft={<i data-lucide="plus" />}>New feedback</Button>
+            <Button variant="secondary">Assign</Button>
+            <Button variant="outline" iconLeft={<i data-lucide="filter" />}>Filters</Button>
+            <Button variant="ghost">Cancel</Button>
+            <Button variant="danger" iconLeft={<i data-lucide="triangle-alert" />}>Escalate</Button>
+            <Button variant="primary" disabled>Disabled</Button>
+          </div>
+          <div className="group"><span className="lbl">Sizes &amp; icon buttons</span>
+            <Button size="sm" variant="outline">Small</Button>
+            <Button size="md" variant="outline">Medium</Button>
+            <Button size="lg" variant="outline">Large</Button>
+            <IconButton label="More" variant="outline"><i data-lucide="ellipsis" /></IconButton>
+            <IconButton label="Edit"><i data-lucide="pencil" /></IconButton>
+            <IconButton label="Add" variant="solid"><i data-lucide="plus" /></IconButton>
+          </div>
+          <div className="group"><span className="lbl">Input &amp; avatars</span>
+            <div style={{ width: 260 }}><Input label="Search tickets" leftIcon={<i data-lucide="search" />} placeholder="ID, patient, keyword…" /></div>
+            <Avatar name="Mai Tran" status="online" />
+            <Avatar name="Quang Le" size={40} status="away" />
+            <Avatar name="Hoa Pham" />
+          </div>
+          <div className="group"><span className="lbl">Tabs</span>
+            <div style={{ width: '100%' }}>
+              <Tabs value={tab} onChange={setTab} tabs={[{label:'Table',value:'table',count:128},{label:'Kanban',value:'kanban'},{label:'Timeline',value:'timeline'}]} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+    requestAnimationFrame(() => window.lucide && window.lucide.createIcons());
+  </script>
+</body>
+</html>

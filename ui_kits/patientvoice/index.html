@@ -1,0 +1,117 @@
+<!-- @dsCard group="PatientVoice App" viewport="1440x900" name="PatientVoice — full app" subtitle="Interactive: dashboard, feedback, SLA, detail, analytics, intake" -->
+<!-- @startingPoint section="PatientVoice App" subtitle="Full quality-management app shell" viewport="1440x900" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PatientVoice — Quality Management</title>
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { font-family: var(--pv-font-sans); background: var(--pv-bg-app); color: var(--pv-text-body); }
+  #app { height: 100vh; }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; border: none; background: none; }
+  .pv-detail-grid {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 280px;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 1200px) {
+    .pv-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="data.js"></script>
+  <script type="text/babel" src="charts.jsx"></script>
+  <script type="text/babel" src="AppShell.jsx"></script>
+  <script type="text/babel" src="Dashboard.jsx"></script>
+  <script type="text/babel" src="FeedbackList.jsx"></script>
+  <script type="text/babel" src="FeedbackDetail.jsx"></script>
+  <script type="text/babel" src="SLAMonitor.jsx"></script>
+  <script type="text/babel" src="Analytics.jsx"></script>
+  <script type="text/babel" src="Intake.jsx"></script>
+
+  <script type="text/babel">
+    const META = {
+      dashboard: ['Dashboard', 'Hospital-wide patient feedback overview'],
+      feedback: ['Feedback Management', '318 open tickets across all channels'],
+      overdue: ['Overdue Feedback', 'Tickets past their SLA window'],
+      sla: ['SLA Monitoring Center', 'Live SLA windows, breaches & escalation'],
+      intake: ['New Feedback', 'Multi-channel quick entry'],
+      hotline: ['Hotline Management', 'Duty schedule, call logs & performance'],
+      analytics: ['Analytics & Reports', 'Executive BI & channel evaluation'],
+      admin: ['Administration', 'Departments, SLA rules, routing & roles'],
+    };
+
+    function Placeholder({ icon, title, text }) {
+      React.useEffect(() => { window.lucide && window.lucide.createIcons(); });
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', height: 360, color: 'var(--pv-text-muted)', gap: 12 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 56, height: 56, borderRadius: 14, background: 'var(--pv-neutral-100)' }}>
+            <i data-lucide={icon} style={{ width: 26, height: 26, color: 'var(--pv-text-subtle)' }} />
+          </span>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--pv-text-strong)' }}>{title}</div>
+          <div style={{ fontSize: 13.5, maxWidth: 380 }}>{text}</div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [route, setRoute] = React.useState('dashboard');
+      const [ticket, setTicket] = React.useState(null);
+      const { AppShell } = window.PVShell;
+
+      const navigate = (id) => { setTicket(null); setRoute(id); };
+      const openTicket = (id) => { setTicket(id); };
+
+      // Resolve view + header
+      let title, subtitle, body;
+      if (ticket) {
+        body = React.createElement(window.PVDetail, { ticketId: ticket, onBack: () => setTicket(null) });
+        [title, subtitle] = ['Feedback Detail', ticket];
+      } else {
+        [title, subtitle] = META[route] || META.dashboard;
+        switch (route) {
+          case 'dashboard': body = React.createElement(window.PVDashboard); break;
+          case 'feedback': body = React.createElement(window.PVFeedback, { onOpen: openTicket }); break;
+          case 'overdue': body = React.createElement(window.PVFeedback, { onOpen: openTicket }); break;
+          case 'sla': body = React.createElement(window.PVSla, { onOpen: openTicket }); break;
+          case 'analytics': body = React.createElement(window.PVAnalytics); break;
+          case 'intake': body = React.createElement(window.PVIntake, { onBack: () => navigate('feedback') }); break;
+          case 'hotline': body = <Placeholder icon="headset" title="Hotline Management" text="Duty schedule calendar, shift check-in, call logs and operator performance — wire up with the duty-schedule data set." />; break;
+          case 'admin': body = <Placeholder icon="settings" title="Administration" text="Departments, employees, feedback categories, SLA rules, routing rules, roles, permissions and notification templates." />; break;
+          default: body = React.createElement(window.PVDashboard);
+        }
+      }
+
+      React.useEffect(() => { window.lucide && window.lucide.createIcons(); });
+
+      return (
+        <AppShell active={ticket ? 'feedback' : route} onNavigate={navigate} title={title} subtitle={subtitle}>
+          {body}
+        </AppShell>
+      );
+    }
+
+    function boot() {
+      if (!window.PVShell || !window.PVDashboard || !window.PVAnalytics || !window.PVIntake || !window.PatientVoiceDesignSystem_16c56a) {
+        return setTimeout(boot, 40);
+      }
+      ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+      requestAnimationFrame(() => window.lucide && window.lucide.createIcons());
+    }
+    boot();
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Spacing & radii" subtitle="8px grid + corner radii" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--pv-font-sans); background: var(--pv-neutral-0); padding: 20px; color: var(--pv-text-strong); display: flex; gap: 40px; }
+  .col { flex: 1; }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pv-text-muted); margin: 0 0 12px; }
+  .row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar { background: var(--pv-primary-600); height: 14px; border-radius: 3px; }
+  .t { font-family: var(--pv-font-mono); font-size: 11px; color: var(--pv-text-muted); width: 64px; }
+  .radii { display: flex; gap: 12px; align-items: flex-end; }
+  .box { width: 56px; height: 56px; background: var(--pv-secondary-100); border: 1.5px solid var(--pv-secondary-500); }
+  .cap { font-family: var(--pv-font-mono); font-size: 10px; color: var(--pv-text-muted); text-align: center; margin-top: 5px; }
+</style>
+</head>
+<body>
+  <div class="col">
+    <div class="label">Spacing · 4 / 8 grid</div>
+    <div class="row"><span class="t">space-2</span><span class="bar" style="width:8px"></span></div>
+    <div class="row"><span class="t">space-3</span><span class="bar" style="width:12px"></span></div>
+    <div class="row"><span class="t">space-4</span><span class="bar" style="width:16px"></span></div>
+    <div class="row"><span class="t">space-6</span><span class="bar" style="width:24px"></span></div>
+    <div class="row"><span class="t">space-8</span><span class="bar" style="width:32px"></span></div>
+  </div>
+  <div class="col">
+    <div class="label">Radii</div>
+    <div class="radii">
+      <div><div class="box" style="border-radius:var(--pv-radius-sm)"></div><div class="cap">sm · 6</div></div>
+      <div><div class="box" style="border-radius:var(--pv-radius-md)"></div><div class="cap">md · 8</div></div>
+      <div><div class="box" style="border-radius:var(--pv-radius-lg)"></div><div class="cap">lg · 12</div></div>
+      <div><div class="box" style="border-radius:var(--pv-radius-pill)"></div><div class="cap">pill</div></div>
+    </div>
+  </div>
+</body>
+</html>

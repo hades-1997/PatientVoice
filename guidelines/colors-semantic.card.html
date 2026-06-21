@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Semantic — SLA & Triage states" subtitle="Success, warning, critical, info for status & SLA" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--pv-font-sans); background: var(--pv-neutral-0); padding: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .cell { border: 1px solid var(--pv-border); border-radius: var(--pv-radius-md); overflow: hidden; }
+  .bar { height: 44px; display: flex; align-items: center; padding: 0 12px; color: #fff; font-weight: 600; font-size: 13px; }
+  .meta { padding: 8px 12px; }
+  .name { font-size: 12px; font-weight: 600; color: var(--pv-text-strong); }
+  .hex { font-family: var(--pv-font-mono); font-size: 11px; color: var(--pv-text-muted); }
+  .tint { display: inline-block; margin-top: 6px; font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell"><div class="bar" style="background:var(--pv-success)">Resolved</div><div class="meta"><div class="name">Success</div><div class="hex">#059669</div><span class="tint" style="background:var(--pv-success-50);color:var(--pv-success-700)">On track</span></div></div>
+    <div class="cell"><div class="bar" style="background:var(--pv-warning)">SLA 80%</div><div class="meta"><div class="name">Warning</div><div class="hex">#EA580C</div><span class="tint" style="background:var(--pv-warning-50);color:var(--pv-warning-700)">Due soon</span></div></div>
+    <div class="cell"><div class="bar" style="background:var(--pv-critical)">Breached</div><div class="meta"><div class="name">Critical</div><div class="hex">#DC2626</div><span class="tint" style="background:var(--pv-critical-50);color:var(--pv-critical-700)">Overdue</span></div></div>
+    <div class="cell"><div class="bar" style="background:var(--pv-info)">New</div><div class="meta"><div class="name">Info</div><div class="hex">#2563EB</div><span class="tint" style="background:var(--pv-info-50);color:var(--pv-info-600)">Notify</span></div></div>
+  </div>
+</body>
+</html>

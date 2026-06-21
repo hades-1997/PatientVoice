@@ -1,0 +1,7 @@
+/* PatientVoice typefaces — IBM Plex family, loaded from Google Fonts CDN.
+   IBM Plex Sans: enterprise-grade humanist grotesque, used for all UI text.
+   IBM Plex Mono: tabular figures for IDs, SLA timers, metrics.
+   NOTE: served from fonts.googleapis.com rather than self-hosted binaries.
+   Swap in local .woff2 files here if offline hosting is required. */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');

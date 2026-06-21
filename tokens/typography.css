@@ -1,0 +1,39 @@
+/* ============================================================
+   PatientVoice — Typography tokens
+   IBM Plex Sans for UI, IBM Plex Mono for IDs / metrics / timers.
+   Dense, legible scale tuned for data-heavy enterprise screens.
+   ============================================================ */
+
+:root {
+  /* Families */
+  --pv-font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pv-font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Weights */
+  --pv-fw-regular: 400;  /* @kind font */
+  --pv-fw-medium:  500;  /* @kind font */
+  --pv-fw-semibold:600;  /* @kind font */
+  --pv-fw-bold:    700;  /* @kind font */
+
+  /* Type scale (px) — desktop-first, data-dense */
+  --pv-text-display:  30px;  /* page hero numbers */
+  --pv-text-h1:       24px;  /* page titles */
+  --pv-text-h2:       19px;  /* section titles */
+  --pv-text-h3:       16px;  /* card titles */
+  --pv-text-base:     14px;  /* body / table default */
+  --pv-text-sm:       13px;  /* secondary, dense tables */
+  --pv-text-xs:       12px;  /* meta, captions */
+  --pv-text-2xs:      11px;  /* badge / overline labels */
+
+  /* Line heights */
+  --pv-leading-tight:   1.2;
+  --pv-leading-snug:    1.35;
+  --pv-leading-normal:  1.5;
+  --pv-leading-relaxed: 1.65;
+
+  /* Letter spacing */
+  --pv-tracking-tight:   -0.01em;
+  --pv-tracking-normal:  0;
+  --pv-tracking-wide:    0.02em;
+  --pv-tracking-overline:0.06em;  /* uppercase eyebrow labels */
+}

@@ -1,0 +1,47 @@
+<!-- @dsCard group="Components" viewport="700x260" name="Status — Triage badges" subtitle="Status, priority, channel & SLA badges" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--pv-font-sans); background: var(--pv-neutral-0); padding: 22px; color: var(--pv-text-strong); }
+  .group { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .lbl { width: 100%; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pv-text-subtle); margin-bottom: 0; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } = window.PatientVoiceDesignSystem_16c56a;
+    function Demo() {
+      return (
+        <div>
+          <div className="group"><span className="lbl">Workflow status</span>
+            <StatusBadge status="new" /><StatusBadge status="assigned" /><StatusBadge status="in_progress" />
+            <StatusBadge status="pending_confirmation" /><StatusBadge status="resolved" /><StatusBadge status="unresolved" />
+          </div>
+          <div className="group"><span className="lbl">Priority</span>
+            <PriorityBadge priority="urgent" /><PriorityBadge priority="high" /><PriorityBadge priority="normal" />
+          </div>
+          <div className="group"><span className="lbl">Channels</span>
+            <ChannelBadge channel="front_desk" /><ChannelBadge channel="hotline" /><ChannelBadge channel="suggestion_box" />
+            <ChannelBadge channel="online_form" /><ChannelBadge channel="email" /><ChannelBadge channel="social_media" /><ChannelBadge channel="news_media" />
+          </div>
+          <div className="group"><span className="lbl">SLA</span>
+            <SLABadge consumedPct={40} remaining="06:12:00" /><SLABadge consumedPct={86} remaining="01:48:20" /><SLABadge breached remaining="-00:42:10" />
+            <div style={{ width: 180 }}><SLABadge variant="bar" consumedPct={86} remaining="01:48:20" /></div>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+    requestAnimationFrame(() => window.lucide && window.lucide.createIcons());
+  </script>
+</body>
+</html>

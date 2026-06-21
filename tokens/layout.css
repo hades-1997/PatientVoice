@@ -1,0 +1,50 @@
+/* ============================================================
+   PatientVoice — Spacing, radii, shadows, layout, motion
+   8px base grid; soft clinical elevation; subtle motion.
+   ============================================================ */
+
+:root {
+  /* Spacing scale (4 / 8 grid) */
+  --pv-space-0:  0;
+  --pv-space-1:  4px;
+  --pv-space-2:  8px;
+  --pv-space-3:  12px;
+  --pv-space-4:  16px;
+  --pv-space-5:  20px;
+  --pv-space-6:  24px;
+  --pv-space-8:  32px;
+  --pv-space-10: 40px;
+  --pv-space-12: 48px;
+  --pv-space-16: 64px;
+
+  /* Radii */
+  --pv-radius-xs:  4px;
+  --pv-radius-sm:  6px;
+  --pv-radius-md:  8px;    /* default: inputs, buttons, cards */
+  --pv-radius-lg:  12px;   /* panels, modals */
+  --pv-radius-xl:  16px;
+  --pv-radius-pill:999px;  /* badges, avatars */
+
+  /* Elevation — soft, cool-tinted clinical shadows */
+  --pv-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --pv-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.05);
+  --pv-shadow-md: 0 2px 4px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.08);
+  --pv-shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.06);
+  --pv-shadow-pop:0 12px 40px rgba(15, 23, 42, 0.16);
+  --pv-shadow-focus: 0 0 0 3px var(--pv-focus-ring);
+
+  /* Layout */
+  --pv-sidebar-w:      244px;
+  --pv-sidebar-w-collapsed: 64px;
+  --pv-topbar-h:       60px;
+  --pv-content-max:    1440px;
+  --pv-detail-left-w:  300px;
+  --pv-detail-right-w: 300px;
+
+  /* Motion */
+  --pv-ease:        cubic-bezier(0.4, 0, 0.2, 1);      /* @kind other */
+  --pv-ease-out:    cubic-bezier(0.16, 1, 0.3, 1);     /* @kind other */
+  --pv-dur-fast:    120ms;  /* @kind other */
+  --pv-dur-base:    180ms;  /* @kind other */
+  --pv-dur-slow:    260ms;  /* @kind other */
+}

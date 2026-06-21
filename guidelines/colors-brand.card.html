@@ -1,0 +1,28 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Brand — Primary & Secondary" subtitle="Clinical teal primary, teal-green secondary" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--pv-font-sans); background: var(--pv-neutral-0); padding: 18px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sw { width: 96px; }
+  .chip { height: 56px; border-radius: var(--pv-radius-md); box-shadow: inset 0 0 0 1px rgba(15,23,42,.06); }
+  .name { font-size: 11px; color: var(--pv-text-strong); font-weight: 600; margin-top: 6px; }
+  .hex { font-family: var(--pv-font-mono); font-size: 11px; color: var(--pv-text-muted); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pv-text-muted); margin: 0 0 10px; }
+</style>
+</head>
+<body>
+  <div class="label">Brand</div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--pv-primary-600)"></div><div class="name">Primary</div><div class="hex">#0E7490</div></div>
+    <div class="sw"><div class="chip" style="background:var(--pv-primary-700)"></div><div class="name">Primary 700</div><div class="hex">#115E75</div></div>
+    <div class="sw"><div class="chip" style="background:var(--pv-secondary-500)"></div><div class="name">Secondary</div><div class="hex">#14B8A6</div></div>
+    <div class="sw"><div class="chip" style="background:var(--pv-secondary-600)"></div><div class="name">Secondary 600</div><div class="hex">#0D9488</div></div>
+    <div class="sw"><div class="chip" style="background:var(--pv-primary-100)"></div><div class="name">Primary 100</div><div class="hex">#CFFAFE</div></div>
+    <div class="sw"><div class="chip" style="background:var(--pv-secondary-100)"></div><div class="name">Secondary 100</div><div class="hex">#CCFBF1</div></div>
+  </div>
+</body>
+</html>
