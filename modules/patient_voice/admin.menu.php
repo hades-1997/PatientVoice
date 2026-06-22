@@ -11,7 +11,7 @@ if (!defined('NV_ADMIN')) {
 }
 
 /* Allow access to these admin ops */
-$allow_func = ['main', 'content', 'detail', 'analytics', 'setting'];
+$allow_func = ['main', 'content', 'detail', 'analytics', 'setting', 'del_feedback'];
 
 /* Admin sidebar menu */
 $submenu['main']      = $lang_module['menu_dashboard'];

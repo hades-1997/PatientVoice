@@ -2,229 +2,313 @@
 
 /**
  * @Project NUKEVIET 4.x
- * @Author VINADES.,JSC (contact@vinades.vn)
- * @Copyright (C) 2017 VINADES.,JSC. All rights reserved
+ * @Module  patient_voice — Intake form (create / edit feedback)
  * @License GNU/GPL version 2 or any later version
- * @Createdate 10 April 2017 17:00
  */
 
-if (! defined('NV_IS_FILE_ADMIN')) {
+if (!defined('NV_IS_FILE_ADMIN')) {
     die('Stop!!!');
 }
 
-/**
- * check_url()
- *
- * @param mixed $id
- * @param mixed $url
- * @return
- */
-function check_url($id, $url)
-{
-    /*global $db, $module_data;
-    $sql = 'SELECT COUNT(*) FROM ' . NV_PREFIXLANG . '_' . $module_data . '_rows WHERE id != ' . intval($id) . ' AND url = ' . $db->quote($url);
-    $numurl = $db->query($sql)->fetchColumn();
-    $msg = ($numurl > 0) ? false : true;*/
-    return true;//$msg;
-}
+$id      = $nv_Request->get_int('id', 'get,post', 0);
+$is_edit = ($id > 0);
+$page_title = $is_edit ? $lang_module['intake_edit_title'] : $lang_module['intake_title'];
 
-if (defined('NV_EDITOR')) {
-    require_once NV_ROOTDIR . '/' . NV_EDITORSDIR . '/' . NV_EDITOR . '/nv.php';
-}
+/* ── Default skeleton ────────────────────────────────────── */
+$data = [
+    'id'            => 0,
+    'ticket_no'     => '',
+    'subject'       => '',
+    'patient_name'  => '',
+    'patient_phone' => '',
+    'patient_email' => '',
+    'dept_id'       => 0,
+    'feedback_type' => PV_TYPE_COMPLAINT,
+    'priority'      => PV_PRIORITY_NORMAL,
+    'status'        => PV_STATUS_NEW,
+    'channel'       => PV_CHANNEL_FRONT_DESK,
+    'assignee_id'   => 0,
+    'assignee_name' => '',
+    'body'          => '',
+    'addtime'       => 0,
+];
+$errors = [];
 
-$page_title = $lang_module['weblink_add_link'];
-
-$data = array(
-    'id' => '',
-    'catid' => '',
-    'title' => '',
-    'alias' => '',
-    'url' => '',
-    'urlimg' => '',
-    'description' => '',
-    'add_time' => '',
-    'edit_time' => '',
-    'hits_total' => '',
-    'admin_phone' => '',
-    'admin_email' => '',
-    'note' => '',
-    'status' => 1
-);
-
-$error = array();
-
-$data['id'] = $nv_Request->get_int('id', 'get', 0);
-if ($data['id'] > 0) {
-    $sql = $db->query('SELECT * FROM ' . NV_PREFIXLANG . '_' . $module_data . '_rows WHERE id=' . $data['id']);
-
-    $data = $sql->fetch();
-
-    $page_title = $lang_module['weblink_edit_link'];
-}
-
-if ($nv_Request->get_int('save', 'post,get', 0)) {
-    $data['id'] = $nv_Request->get_int('id', 'post', 0);
-    $data['catid'] = $nv_Request->get_int('catid', 'post', 0);
-    $data['title'] = $nv_Request->get_title('title', 'post', '', 1);
-    $data['alias'] = $nv_Request->get_title('alias', 'post', '', 1);
-    $data['alias'] = ($data['alias'] == '') ? change_alias($data['title']) : change_alias($data['alias']);
-    $data['url'] = $nv_Request->get_title('url', 'post', '');
-    $data['urlimg'] = $nv_Request->get_title('urlimg', 'post', '');
-
-    if (! nv_is_url($data['urlimg']) and file_exists(NV_DOCUMENT_ROOT . $data['urlimg'])) {
-        $lu = strlen(NV_BASE_SITEURL . NV_UPLOADS_DIR . '/');
-        if (substr($data['urlimg'], 0, $lu) == NV_BASE_SITEURL . NV_UPLOADS_DIR . '/') {
-            $data['urlimg'] = substr($data['urlimg'], $lu);
+/* ── Load existing record on edit ────────────────────────── */
+if ($is_edit) {
+    $row = pv_get_feedback($id);
+    if (!$row) {
+        nv_redirect_location(pv_admin_url('main'));
+        exit();
+    }
+    foreach ($data as $k => $default) {
+        if (isset($row[$k])) {
+            $data[$k] = $row[$k];
         }
     }
+    $data['body'] = $row['body'] ?? '';
+}
 
-    if (! empty($data['url'])) {
-        if (! preg_match('#^(http|https|ftp|gopher)\:\/\/#', $data['url'])) {
-            $data['url'] = 'http://' . $data['url'];
+/* ── POST: save ──────────────────────────────────────────── */
+if ($nv_Request->get_int('save', 'post', 0)) {
+
+    $post_id       = $nv_Request->get_int('id',            'post', 0);
+    $subject       = $nv_Request->get_title('subject',      'post', '');
+    $patient_name  = $nv_Request->get_title('patient_name', 'post', '');
+    $patient_phone = $nv_Request->get_title('patient_phone','post', '');
+    $patient_email = $nv_Request->get_title('patient_email','post', '');
+    $dept_id       = $nv_Request->get_int('dept_id',        'post', 0);
+    $feedback_type = $nv_Request->get_int('feedback_type',  'post', PV_TYPE_COMPLAINT);
+    $priority      = $nv_Request->get_int('priority',       'post', PV_PRIORITY_NORMAL);
+    $channel       = $nv_Request->get_int('channel',        'post', PV_CHANNEL_FRONT_DESK);
+    $assignee_id   = $nv_Request->get_int('assignee_id',    'post', 0);
+    $assignee_name = $nv_Request->get_title('assignee_name','post', '');
+    $body          = $nv_Request->get_string('body',         'post', '');
+
+    /* Validate */
+    if (empty(trim($subject))) {
+        $errors[] = $lang_module['error_subject'];
+    }
+    if ($dept_id <= 0) {
+        $errors[] = $lang_module['error_dept'];
+    }
+
+    if (empty($errors)) {
+
+        /* Resolve assignee_name from system user if a uid is selected */
+        if ($assignee_id > 0) {
+            try {
+                $urow = $db->query(
+                    "SELECT username, full_name FROM " . NV_USERS_GLOBALTABLE
+                    . " WHERE userid = " . intval($assignee_id)
+                )->fetch();
+                if ($urow) {
+                    $assignee_name = $urow['full_name'] ?: $urow['username'];
+                }
+            } catch (Exception $e) {}
         }
-    }
 
-    $data['description'] = $nv_Request->get_editor('description', '', NV_ALLOWED_HTML_TAGS);
+        $T = NV_PREFIXLANG . '_' . $module_data;
 
-    $data['status'] = ($nv_Request->get_int('status', 'post') == 1) ? 1 : 0;
-    // check url
-	if ($data['url']!='http://#')
-    if (empty($data['url']) || ! nv_is_url($data['url']) || ! check_url($data['id'], $data['url']) ) {
-        $error[] = $lang_module['error_url'];
-    }
-    if (empty($data['title'])) {
-        $error[] = $lang_module['error_title'];
-    }
-    if (strip_tags($data['description']) == '') {
-        $error[] = $lang_module['error_description'];
-    }
-
-    if (empty($error)) {
-        if ($data['id'] > 0) {
-            $stmt = $db->prepare('UPDATE ' . NV_PREFIXLANG . '_' . $module_data . '_rows SET
-				catid=' . intval($data['catid']) . ',
-				title=:title,
-				alias =:alias,
-				url =:url,
-				urlimg =:urlimg,
-				description=:description,
-				edit_time = ' . NV_CURRENTTIME . ',
-				status=' . intval($data['status']) . '
-				WHERE id =' . intval($data['id']));
-            $stmt->bindParam(':title',  $data['title'], PDO::PARAM_STR);
-            $stmt->bindParam(':alias',  $data['alias'], PDO::PARAM_STR);
-            $stmt->bindParam(':url',  $data['url'], PDO::PARAM_STR);
-            $stmt->bindParam(':urlimg',  $data['urlimg'], PDO::PARAM_STR);
-            $stmt->bindParam(':description',  $data['description'], PDO::PARAM_STR, strlen($data['description']));
+        if ($post_id > 0) {
+            /* ── UPDATE ── */
+            $stmt = $db->prepare("UPDATE {$T}_feedback SET
+                subject       = :subject,
+                patient_name  = :pname,
+                patient_phone = :pphone,
+                patient_email = :pemail,
+                dept_id       = :dept,
+                feedback_type = :ftype,
+                priority      = :priority,
+                channel       = :channel,
+                assignee_id   = :aid,
+                assignee_name = :aname,
+                sla_deadline  = :sla,
+                edittime      = :now
+                WHERE id = :id");
+            $stmt->bindValue(':subject',  $subject);
+            $stmt->bindValue(':pname',    $patient_name);
+            $stmt->bindValue(':pphone',   $patient_phone);
+            $stmt->bindValue(':pemail',   $patient_email);
+            $stmt->bindValue(':dept',     $dept_id,       PDO::PARAM_INT);
+            $stmt->bindValue(':ftype',    $feedback_type, PDO::PARAM_INT);
+            $stmt->bindValue(':priority', $priority,      PDO::PARAM_INT);
+            $stmt->bindValue(':channel',  $channel,       PDO::PARAM_INT);
+            $stmt->bindValue(':aid',      $assignee_id,   PDO::PARAM_INT);
+            $stmt->bindValue(':aname',    $assignee_name);
+            $stmt->bindValue(':sla',      pv_sla_deadline($priority, $data['addtime'] ?: NV_CURRENTTIME), PDO::PARAM_INT);
+            $stmt->bindValue(':now',      NV_CURRENTTIME, PDO::PARAM_INT);
+            $stmt->bindValue(':id',       $post_id,       PDO::PARAM_INT);
 
             if ($stmt->execute()) {
-                nv_insert_logs(NV_LANG_DATA, $module_name, $lang_module['weblink_edit_link'], $data['title'], $admin_info['userid']);
+                /* Upsert detail row */
+                $db->prepare("INSERT INTO {$T}_feedback_detail (feedback_id, body)
+                              VALUES (:fid, :body)
+                              ON DUPLICATE KEY UPDATE body = :body2")
+                   ->execute([':fid' => $post_id, ':body' => $body, ':body2' => $body]);
+
+                pv_add_timeline($post_id, 'edit', 'Cập nhật thông tin phản hồi');
                 $nv_Cache->delMod($module_name);
-				Header('Location: ' . NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
-                die();
-            } else {
-                $error[] = $lang_module['errorsave'];
+                nv_redirect_location(pv_admin_url('detail', 'id=' . $post_id));
+                exit();
             }
-        } else {
-            $stmt = $db->prepare('INSERT INTO ' . NV_PREFIXLANG . '_' . $module_data . '_rows SET
-				catid =' . intval($data['catid']) . ',
-				title =:title,
-				alias =:alias,
-				url =:url,
-				urlimg =:urlimg,
-				note =:note,
-				description =:description,
-				admin_phone =' . intval($data['admin_phone']) . ',
-				admin_email =' . intval($data['admin_email']) . ',
-				add_time = ' . NV_CURRENTTIME . ',
-				edit_time =' . NV_CURRENTTIME . ',
-				hits_total = 0,
-				status = ' . intval($data['status']));
-            $stmt->bindParam(':title', $data['title'], PDO::PARAM_STR);
-            $stmt->bindParam(':alias', $data['alias'], PDO::PARAM_STR);
-            $stmt->bindParam(':url', $data['url'], PDO::PARAM_STR);
-            $stmt->bindParam(':urlimg', $data['urlimg'], PDO::PARAM_STR);
-            $stmt->bindParam(':note', $data['note'], PDO::PARAM_STR);
-            $stmt->bindParam(':description', $data['description'], PDO::PARAM_STR, strlen($data['description']));
-            if ($stmt->execute()) {
-                nv_insert_logs(NV_LANG_DATA, $module_name, $lang_module['weblink_add_link'], $data['title'], $admin_info['userid']);
-				$nv_Cache->delMod($module_name);
+            $errors[] = $lang_module['save_error'];
 
-                Header('Location: ' . NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name);
-                die();
-            } else {
-                $error[] = $lang_module['errorsave'];
+        } else {
+            /* ── INSERT ── */
+            $ticket_no  = pv_next_ticket_no();
+            $sla        = pv_sla_deadline($priority);
+            $new_status = ($assignee_id > 0) ? PV_STATUS_ASSIGNED : PV_STATUS_NEW;
+
+            $stmt = $db->prepare("INSERT INTO {$T}_feedback
+                (ticket_no, subject, patient_name, patient_phone, patient_email,
+                 dept_id, feedback_type, priority, status, channel,
+                 assignee_id, assignee_name, sla_deadline, created_by, addtime, edittime)
+                VALUES
+                (:tno, :subject, :pname, :pphone, :pemail,
+                 :dept, :ftype, :priority, :status, :channel,
+                 :aid, :aname, :sla, :cby, :now, :now)");
+            $stmt->bindValue(':tno',      $ticket_no);
+            $stmt->bindValue(':subject',  $subject);
+            $stmt->bindValue(':pname',    $patient_name);
+            $stmt->bindValue(':pphone',   $patient_phone);
+            $stmt->bindValue(':pemail',   $patient_email);
+            $stmt->bindValue(':dept',     $dept_id,       PDO::PARAM_INT);
+            $stmt->bindValue(':ftype',    $feedback_type, PDO::PARAM_INT);
+            $stmt->bindValue(':priority', $priority,      PDO::PARAM_INT);
+            $stmt->bindValue(':status',   $new_status,    PDO::PARAM_INT);
+            $stmt->bindValue(':channel',  $channel,       PDO::PARAM_INT);
+            $stmt->bindValue(':aid',      $assignee_id,   PDO::PARAM_INT);
+            $stmt->bindValue(':aname',    $assignee_name);
+            $stmt->bindValue(':sla',      $sla,           PDO::PARAM_INT);
+            $stmt->bindValue(':cby',      (int)$admin_info['userid'], PDO::PARAM_INT);
+            $stmt->bindValue(':now',      NV_CURRENTTIME, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                $new_id = (int) $db->lastInsertId();
+
+                if (!empty(trim($body))) {
+                    $db->prepare("INSERT INTO {$T}_feedback_detail (feedback_id, body) VALUES (:fid, :body)")
+                       ->execute([':fid' => $new_id, ':body' => $body]);
+                }
+
+                pv_add_timeline($new_id, 'created', 'Tiếp nhận phản hồi: ' . $ticket_no);
+                if ($assignee_id > 0) {
+                    pv_add_timeline($new_id, 'assigned', 'Phân công cho: ' . $assignee_name);
+                }
+
+                $nv_Cache->delMod($module_name);
+                nv_redirect_location(pv_admin_url('detail', 'id=' . $new_id));
+                exit();
             }
+            $errors[] = $lang_module['save_error'];
         }
     }
+
+    /* Repopulate form (validation failure or DB error) */
+    $data = array_merge($data, [
+        'id'            => $post_id,
+        'subject'       => $subject,
+        'patient_name'  => $patient_name,
+        'patient_phone' => $patient_phone,
+        'patient_email' => $patient_email,
+        'dept_id'       => $dept_id,
+        'feedback_type' => $feedback_type,
+        'priority'      => $priority,
+        'channel'       => $channel,
+        'assignee_id'   => $assignee_id,
+        'assignee_name' => $assignee_name,
+        'body'          => $body,
+    ]);
 }
 
+/* ── Dropdown HTML ───────────────────────────────────────── */
+$depts = pv_dept_list();
 
-
-// dung de lay data tu CSDL
-$data['description'] = (defined('NV_EDITOR')) ? nv_editor_br2nl($data['description']) : nv_br2nl($data['description']);
-$data['description'] = nv_htmlspecialchars($data['description']);
-
-if (! empty($data['urlimg']) and ! nv_is_url($data['urlimg'])) {
-    $data['urlimg'] = NV_BASE_SITEURL . NV_UPLOADS_DIR . '/' . $data['urlimg'];
+$dept_opts = '<option value="0">— ' . $lang_module['field_dept'] . ' —</option>';
+foreach ($depts as $d) {
+    $sel = ($data['dept_id'] == $d['id']) ? ' selected' : '';
+    $dept_opts .= '<option value="' . $d['id'] . '"' . $sel . '>'
+               . htmlspecialchars($d['name']) . '</option>';
 }
 
-if (defined('NV_EDITOR') and nv_function_exists('nv_aleditor')) {
-    $edits = nv_aleditor('description', '100%', '300px', $data['description']);
-} else {
-    $edits = '<textarea style="width: 100%" name="description" id="description" cols="20" rows="15">' . $data['description'] . '</textarea>';
+$type_opts = '';
+foreach ([
+    PV_TYPE_COMPLAINT  => $lang_module['type_complaint'],
+    PV_TYPE_COMPLIMENT => $lang_module['type_compliment'],
+    PV_TYPE_INQUIRY    => $lang_module['type_inquiry'],
+    PV_TYPE_SUGGESTION => $lang_module['type_suggestion'],
+    PV_TYPE_INCIDENT   => $lang_module['type_incident'],
+] as $val => $label) {
+    $sel = ($data['feedback_type'] == $val) ? ' selected' : '';
+    $type_opts .= '<option value="' . $val . '"' . $sel . '>' . $label . '</option>';
 }
 
-$querysubcat = $db->query('SELECT catid, parentid, title FROM ' . NV_PREFIXLANG . '_' . $module_data . '_cat ORDER BY parentid, weight ASC');
-$array_cat = array();
-while ($row = $querysubcat->fetch()) {
-    $array_cat[$row['catid']] = $row;
+$priority_opts = '';
+foreach ([
+    PV_PRIORITY_URGENT => $lang_module['priority_urgent'],
+    PV_PRIORITY_HIGH   => $lang_module['priority_high'],
+    PV_PRIORITY_NORMAL => $lang_module['priority_normal'],
+] as $val => $label) {
+    $sel = ($data['priority'] == $val) ? ' selected' : '';
+    $priority_opts .= '<option value="' . $val . '"' . $sel . '>' . $label . '</option>';
 }
 
-if (empty($array_cat)) {
-    Header('Location: ' . NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=cat');
-    exit();
+$channel_opts = '';
+foreach ([
+    PV_CHANNEL_HOTLINE        => $lang_module['channel_hotline'],
+    PV_CHANNEL_ONLINE_FORM    => $lang_module['channel_online_form'],
+    PV_CHANNEL_FRONT_DESK     => $lang_module['channel_front_desk'],
+    PV_CHANNEL_EMAIL          => $lang_module['channel_email'],
+    PV_CHANNEL_SOCIAL_MEDIA   => $lang_module['channel_social_media'],
+    PV_CHANNEL_SUGGESTION_BOX => $lang_module['channel_suggestion_box'],
+    PV_CHANNEL_NEWS_MEDIA     => $lang_module['channel_news_media'],
+] as $val => $label) {
+    $sel = ($data['channel'] == $val) ? ' selected' : '';
+    $channel_opts .= '<option value="' . $val . '"' . $sel . '>' . $label . '</option>';
 }
 
-$data['description'] = htmlspecialchars(nv_editor_br2nl($data['description']));
+/* Assignee: system admin users + fallback to manual text */
+$assignee_opts  = '<option value="0">' . $lang_module['field_unassigned'] . '</option>';
+$has_sys_users  = false;
+try {
+    $sys_users = $db->query(
+        "SELECT userid, username, full_name FROM " . NV_USERS_GLOBALTABLE
+        . " WHERE level >= 2 ORDER BY full_name, username ASC"
+    )->fetchAll();
+    foreach ($sys_users as $u) {
+        $name = $u['full_name'] ?: $u['username'];
+        $sel  = ($data['assignee_id'] == $u['userid']) ? ' selected' : '';
+        $assignee_opts .= '<option value="' . $u['userid'] . '"' . $sel . '>'
+                       . htmlspecialchars($name) . '</option>';
+        $has_sys_users = true;
+    }
+} catch (Exception $e) {}
 
+/* ── XTemplate ───────────────────────────────────────────── */
 $xtpl = new XTemplate('content.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
-$xtpl->assign('LANG', $lang_module);
-$xtpl->assign('DATA', $data);
+
+$xtpl->assign('LANG',             $lang_module);
 $xtpl->assign('NV_BASE_ADMINURL', NV_BASE_ADMINURL);
 $xtpl->assign('NV_NAME_VARIABLE', NV_NAME_VARIABLE);
-$xtpl->assign('MODULE_NAME', $module_name);
-$xtpl->assign('NV_OP_VARIABLE', NV_OP_VARIABLE);
-$xtpl->assign('OP', $op);
-$xtpl->assign('DESCRIPTION', $edits);
+$xtpl->assign('NV_OP_VARIABLE',   NV_OP_VARIABLE);
+$xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
+$xtpl->assign('NV_LANG_DATA',     NV_LANG_DATA);
+$xtpl->assign('MODULE_NAME',      $module_name);
+$xtpl->assign('PAGE_TITLE',        $page_title);
+$xtpl->assign('FORM_ACTION',      htmlspecialchars($is_edit
+    ? pv_admin_url('content', 'id=' . $id)
+    : pv_admin_url('content')));
+$xtpl->assign('URL_LIST',         htmlspecialchars(pv_admin_url('main')));
+$xtpl->assign('DEPT_OPTS',        $dept_opts);
+$xtpl->assign('TYPE_OPTS',        $type_opts);
+$xtpl->assign('PRIORITY_OPTS',    $priority_opts);
+$xtpl->assign('CHANNEL_OPTS',     $channel_opts);
+$xtpl->assign('ASSIGNEE_OPTS',    $assignee_opts);
+$xtpl->assign('DATA', [
+    'id'            => (int)$data['id'],
+    'ticket_no'     => htmlspecialchars($data['ticket_no']),
+    'subject'       => htmlspecialchars($data['subject']),
+    'patient_name'  => htmlspecialchars($data['patient_name']),
+    'patient_phone' => htmlspecialchars($data['patient_phone']),
+    'patient_email' => htmlspecialchars($data['patient_email']),
+    'assignee_name' => htmlspecialchars($data['assignee_name']),
+    'body'          => htmlspecialchars($data['body']),
+]);
 
-if (! empty($array_cat)) {
-    foreach ($array_cat as $cat) {
-        $xtitle = '';
-        if ($cat['parentid'] != 0) {
-            $xtitle = getlevel($cat['parentid'], $array_cat);
-        }
-        $cat['title'] = $xtitle . $cat['title'];
-        $cat['sl'] = ($cat['catid'] == $data['catid']) ? 'selected="selected"' : '';
-        $xtpl->assign('CAT', $cat);
-        $xtpl->parse('main.loopcat');
-    }
+if ($is_edit) {
+    $xtpl->parse('main.edit_badge');
 }
-
-$xtpl->assign('PATH', NV_UPLOADS_DIR . '/' . $module_upload);
-$xtpl->assign('DATA', $data);
-
-if (empty($data['alias'])) {
-    $xtpl->parse('main.getalias');
+if (!$has_sys_users) {
+    $xtpl->parse('main.assignee_manual');
 }
-
-if (! empty($error)) {
-    $xtpl->assign('error', implode('<br />', $error));
-    $xtpl->parse('main.error');
+if (!empty($errors)) {
+    $xtpl->assign('ERRORS', implode('<br>', $errors));
+    $xtpl->parse('main.error_block');
 }
 
 $xtpl->parse('main');
-$contents .= $xtpl->text('main');
+$contents = $xtpl->text('main');
 
 include NV_ROOTDIR . '/includes/header.php';
 echo nv_admin_theme($contents);

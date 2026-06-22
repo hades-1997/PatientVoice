@@ -10,181 +10,73 @@ if (!defined('NV_IS_MOD_PATIENT_VOICE')) {
     die('Stop!!!');
 }
 
-
-
-/**
- * export_spreadsheet()
- *
- * @param mixed $array_cat
- * @param mixed $array_cat_content
- * @return
- */
-function export_spreadsheet($array_data,$link_submit,$r_search, $status)
+function pv_theme_main($d)
 {
-    global $site_mods, $module_name, $module_upload, $lang_module, $module_config, $module_info, $global_array_cat, $global_array_cat, $catid, $page,$user_info;
+    global $module_file, $module_info, $lang_module;
 
-    $xtpl = new XTemplate('export_spreadsheet.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
-    $xtpl->assign('LANG', $lang_module);
-	 $xtpl->assign('BASE_URL', NV_BASE_SITEURL);
-	 $xtpl->assign('URL_THEMES', NV_BASE_SITEURL.'themes/cpanel');
-    $xtpl->assign('SUBMIT', $link_submit);
-	$trinhdo = select_group_qlnl('trinhdo');
-	$nghenghiep = select_group_qlnl('nghenghiep');
-	$kp_id = list_khoaphong();
-	
-	$c_year = 2024;
-	$c_5year = $c_year + 4;
+    $xtpl = new XTemplate('main.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
+    $xtpl->assign('LANG',        $lang_module);
+    $xtpl->assign('FORM_ACTION', $d['form_action']);
+    $xtpl->assign('DEPT_OPTS',   $d['dept_opts']);
+    $xtpl->assign('TYPE_OPTS',   $d['type_opts']);
+    $xtpl->assign('DATA',        $d['form_data']);
+    $xtpl->assign('LOOKUP_URL',  $d['lookup_url']);
 
-	$array_year = [];
-	for($i=0;$i<4;$i++) {
-		$array_year[] = $c_year . '-' . $c_5year;
-		$c_year = $c_year + 1;
-		$c_5year = $c_5year + 4;
-	}
-	
-	$xtpl->assign('SEARCH', $r_search);
-	
-	$chucvu = [
-		'Giám đốc',
-		'Phó Giám đốc',
-		'Trưởng khoa',
-		'Trưởng phòng',
-		'Phụ trách khoa',
-		'Phụ trách phòng',
-		'Phó trưởng khoa',
-		'Phó trưởng phòng',
-		'Điều dưỡng trưởng',
-		'Hộ sinh trưởng',
-		'Kỹ thuật viên trưởng',
-		'Điều dưỡng hành chính',
-		'Viên chức',
-		'Người lao động'
-	];
-	
-	$quyen = check_quyen($user_info);
-	$tk_khoa=check_khoaphong($user_info['username']);
+    if (!empty($d['success'])) {
+        $xtpl->assign('SUCCESS_MSG', sprintf($lang_module['submit_ok_body'], htmlspecialchars($d['ticket_no'])));
+        $xtpl->assign('LOOKUP_URL',  $d['lookup_url']);
+        $xtpl->parse('main.submit_ok');
+    } else {
+        if (!empty($d['errors'])) {
+            foreach ($d['errors'] as $err) {
+                $xtpl->assign('ERR', htmlspecialchars($err));
+                $xtpl->parse('main.form_block.error_list.error_item');
+            }
+            $xtpl->parse('main.form_block.error_list');
+        }
+        $xtpl->parse('main.form_block');
+    }
 
-	
-	if(!empty($chucvu)) {
-		foreach($chucvu as $val) {
-			$xtpl->assign('CV', array(
-				'id' =>$val,
-				'name' => $val,
-				'select' => ($r_search['chucvu'] == $val) ? ' selected="selected"' : ''
-			));
-			$xtpl->parse('main.chucvu');
-		}
-	}
-	
-	$td_id=0;
-	foreach($trinhdo as $item) {
-		$xtpl->assign('TD', array(
-			'id' => $item['select_name'],
-			'name' => $item['select_name'],
-			'select' => ($r_search['trinhdo'] == $item['select_name']) ? ' selected="selected"' : ''
-		));
-		$xtpl->parse('main.trinhdo');
-	}
-	
-	$tinhtrang = [
-		'Đã hoàn thành',
-		'Chưa hoàn thiện'
-	];
-	
-	if(!empty($tinhtrang )) {
-		
-		foreach($tinhtrang as $val) {
-			$xtpl->assign('TR', array(
-				'id' =>$val,
-				'name' => $val,
-				'select' => ($r_search['tinhtrang'] == $val) ? ' selected="selected"' : ''
-			));
-			$xtpl->parse('main.tinhtrang');
-		}
-	}
-	
-	foreach($array_year as $year) {
-		$xtpl->assign('YEAR', array(
-			'id' => $year,
-			'name' => $year,
-			'select' => ($r_search['year'] == $year) ? ' selected="selected"' : ''
-		));
-		$xtpl->parse('main.year');
-	}
-	
-	if(!empty($nghenghiep)) {
-		
-		$kp_new = [
-			"select_code" => 'BS-YS-DD-HS-KTV',
-			"select_name" => 'BS-YS-DD-HS-KTV'
-		];
-		
-		array_unshift($nghenghiep, $kp_new);
-		
-		foreach($nghenghiep as $val) {
-			$xtpl->assign('NP', array(
-				'id' => $val['select_code'],
-				'name' => $val['select_name'],
-				'select' => ($r_search["nghenghiep"] == $val['select_name']) ? ' selected="selected"' : ''
-			));
-			
-			$xtpl->parse('main.nghenghiep');
-		}
-	}
-
-	
-
-	if(!empty($kp_id )) {
-		if($quyen >= 100){
-			foreach($kp_id as $val) {
-				$xtpl->assign('KP', array(
-					'id' => $val['id'],
-					'name' => $val['tenkhoa'],
-					'select' => ($r_search["id_khoaphong"] == $val['id']) ? ' selected="selected"' : ''
-				));
-				$xtpl->parse('main.khoaphong');
-				
-			}
-			if(!empty($status['err'])) {
-				$xtpl->assign('MESSAGE', $status['err']);
-				$xtpl->parse('main.notifi');
-			}
-			if(!empty($status['data'])) {
-				$xtpl->assign('MESSAGE', $status['data']);
-				
-				$xtpl->assign('GDRIVE_LINK', $array_data['link_drive']);
-				$xtpl->assign('GDRIVE_FILENAME', 'Google Sheet - SCYK Export');
-				$xtpl->parse('main.notifi');
-				$xtpl->parse('main.gdrive_result');
-			}
-			$xtpl->parse('main.open');
-			$xtpl->parse('main.power');
-		}else {
-			
-			$id_khoa = $tk_khoa - 1;
-			$xtpl->assign('KP', array(
-				'id' => $tk_khoa,
-				'name' => $kp_id[$id_khoa]["tenkhoa"],
-				'select' => ' selected="selected"'
-			));
-			$xtpl->parse('main.khoaphong');
-		}
-		
-	}
-
-	$currentTime = Date('Y');
-	if(!empty($r_search['tungay'])) {
-	}else {
-		$r_search['tungay'] = '01/01/' . $currentTime;
-	}
-
-	if( !empty($r_search['denngay'])){
-	}else {
-		$r_search['denngay'] = '31/12/' .$currentTime;
-	}
-	$xtpl->assign('SEARCH', $r_search);
-	
     $xtpl->parse('main');
     return $xtpl->text('main');
 }
 
+function pv_theme_detail($d)
+{
+    global $module_file, $module_info, $lang_module;
+
+    $xtpl = new XTemplate('detail.tpl', NV_ROOTDIR . '/themes/' . $module_info['template'] . '/modules/' . $module_info['module_theme']);
+    $xtpl->assign('LANG',        $lang_module);
+    $xtpl->assign('FORM_ACTION', $d['form_action']);
+    $xtpl->assign('QUERY', [
+        'ticket' => htmlspecialchars($d['q_ticket']),
+        'phone'  => htmlspecialchars($d['q_phone']),
+    ]);
+
+    if (!empty($d['not_found'])) {
+        $xtpl->parse('main.not_found');
+    }
+
+    if (!empty($d['row'])) {
+        $xtpl->assign('ROW', $d['row']);
+
+        if (empty($d['timeline'])) {
+            $xtpl->parse('main.result_block.no_timeline');
+        } else {
+            foreach ($d['timeline'] as $t) {
+                $xtpl->assign('TLINE', $t);
+                if (!empty($t['body'])) {
+                    $xtpl->parse('main.result_block.loop_timeline.tline_has_body');
+                }
+                $xtpl->parse('main.result_block.loop_timeline');
+            }
+        }
+        $xtpl->parse('main.result_block');
+    }
+
+    /* Always show lookup form (above or below result) */
+    $xtpl->parse('main.lookup_form');
+
+    $xtpl->parse('main');
+    return $xtpl->text('main');
+}

@@ -14,9 +14,14 @@ define('NV_IS_MOD_PATIENT_VOICE', true);
 
 require_once NV_ROOTDIR . '/modules/' . $module_file . '/global.functions.php';
 
-$page_title = $module_info['site_title'];
-
-/* ── Route op ──────────────────────────────────────────── */
-if (empty($op) || $op === 'main') {
+/* ── Route ── */
+$op = $nv_Request->get_string('op', 'get', 'main');
+if (!in_array($op, ['main', 'detail', 'search'], true)) {
     $op = 'main';
 }
+
+$page_title = $module_info['site_title'];
+$contents   = '';
+
+include NV_ROOTDIR . '/modules/' . $module_file . '/theme.php';
+include NV_ROOTDIR . '/modules/' . $module_file . '/funcs/' . $op . '.php';
