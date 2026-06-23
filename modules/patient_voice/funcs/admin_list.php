@@ -2,7 +2,7 @@
 
 /**
  * @Project NUKEVIET 4.x
- * @Module  patient_voice — Admin dashboard / feedback list
+ * @Module  patient_voice — Admin: dashboard / feedback list
  * @License GNU/GPL version 2 or any later version
  */
 
@@ -25,15 +25,15 @@ $page     = max(1, $nv_Request->get_int('page', 'get', 1));
 $per_page = (int) pv_config('per_page', 20);
 
 /* ── Data ────────────────────────────────────────────────── */
-$kpis   = pv_kpis();
-$depts  = pv_dept_list();
+$kpis  = pv_kpis();
+$depts = pv_dept_list();
 
 $active_filters = array_filter($filters, function ($v) { return $v !== 0 && $v !== ''; });
 $result = pv_list_feedback($active_filters, $page, $per_page);
 
 $total_pages = ($per_page > 0 && $result['total'] > 0) ? (int) ceil($result['total'] / $per_page) : 1;
 
-/* ── Filter query string (bare & for URL building) ───────── */
+/* ── Filter query string ─────────────────────────────────── */
 $filter_qs = '';
 foreach ($filters as $k => $v) {
     if ($v !== 0 && $v !== '') {
@@ -41,7 +41,7 @@ foreach ($filters as $k => $v) {
     }
 }
 
-/* ── Localized label maps ────────────────────────────────── */
+/* ── Label maps ──────────────────────────────────────────── */
 $status_labels = [
     PV_STATUS_NEW             => $lang_module['status_new'],
     PV_STATUS_ASSIGNED        => $lang_module['status_assigned'],
@@ -72,7 +72,7 @@ $channel_labels = [
     PV_CHANNEL_NEWS_MEDIA     => $lang_module['channel_news_media'],
 ];
 
-/* ── Pre-build dropdown HTML ─────────────────────────────── */
+/* ── Dropdown HTML ───────────────────────────────────────── */
 $status_opts = '<option value="0">' . $lang_module['filter_all_status'] . '</option>';
 foreach ($status_labels as $val => $label) {
     $sel = ($filters['status'] == $val) ? ' selected' : '';
@@ -114,8 +114,9 @@ $xtpl->assign('NV_OP_VARIABLE',   NV_OP_VARIABLE);
 $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
 $xtpl->assign('NV_LANG_DATA',     NV_LANG_DATA);
 $xtpl->assign('MODULE_NAME',      $module_name);
-$xtpl->assign('URL_NEW',          htmlspecialchars(pv_admin_url('content')));
-$xtpl->assign('URL_RESET',        htmlspecialchars(pv_admin_url('main')));
+$xtpl->assign('URL_NEW',          htmlspecialchars(pv_admin_url('admin_form')));
+$xtpl->assign('URL_RESET',        htmlspecialchars(pv_admin_url('admin_list')));
+$xtpl->assign('OP_LIST',          'admin_list');
 $xtpl->assign('F_Q',              htmlspecialchars($filters['q']));
 $xtpl->assign('STATUS_OPTS',      $status_opts);
 $xtpl->assign('PRIORITY_OPTS',    $priority_opts);
@@ -123,27 +124,24 @@ $xtpl->assign('TYPE_OPTS',        $type_opts);
 $xtpl->assign('CHANNEL_OPTS',     $channel_opts);
 $xtpl->assign('DEPT_OPTS',        $dept_opts);
 
-/* KPIs */
 $xtpl->assign('KPI_NEW_TODAY', $kpis['new_today']);
 $xtpl->assign('KPI_OPEN',      $kpis['open']);
 $xtpl->assign('KPI_WEEK',      $kpis['week']);
 $xtpl->assign('KPI_OVERDUE',   $kpis['overdue']);
 $xtpl->assign('KPI_SLA_PCT',   $kpis['sla_pct']);
 
-/* Pagination meta */
 $page_start = $result['total'] > 0 ? ($page - 1) * $per_page + 1 : 0;
 $page_end   = min($page * $per_page, $result['total']);
-$xtpl->assign('TOTAL',       $result['total']);
-$xtpl->assign('PAGE_START',  $page_start);
-$xtpl->assign('PAGE_END',    $page_end);
+$xtpl->assign('TOTAL',      $result['total']);
+$xtpl->assign('PAGE_START', $page_start);
+$xtpl->assign('PAGE_END',   $page_end);
 
-/* Rows */
 if (empty($result['rows'])) {
     $xtpl->parse('main.no_rows');
 } else {
     foreach ($result['rows'] as $row) {
-        [, $status_slug]          = pv_status_label($row['status']);
-        [, $priority_slug]        = pv_priority_label($row['priority']);
+        [, $status_slug]           = pv_status_label($row['status']);
+        [, $priority_slug]         = pv_priority_label($row['priority']);
         [, $type_icon, $type_slug] = pv_type_label($row['feedback_type']);
 
         $subject = $row['subject'];
@@ -163,30 +161,29 @@ if (empty($result['rows'])) {
                 : ($row['sla_pct'] >= 80 ? 'sla-warning' : 'sla-ok');
         }
 
-        $row['status_label']   = $status_labels[(int)$row['status']]          ?? '';
+        $row['status_label']   = $status_labels[(int)$row['status']]     ?? '';
         $row['status_slug']    = $status_slug;
-        $row['priority_label'] = $priority_labels[(int)$row['priority']]       ?? '';
+        $row['priority_label'] = $priority_labels[(int)$row['priority']] ?? '';
         $row['priority_slug']  = $priority_slug;
-        $row['type_label']     = $type_labels[(int)$row['feedback_type']]      ?? '';
+        $row['type_label']     = $type_labels[(int)$row['feedback_type']] ?? '';
         $row['type_icon']      = $type_icon;
         $row['dept_name']      = htmlspecialchars($row['dept_name'] ?? '—');
         $row['assignee_name']  = $row['assignee_name'] ? htmlspecialchars($row['assignee_name']) : '—';
         $row['subject']        = htmlspecialchars($subject);
         $row['patient_name']   = htmlspecialchars($row['patient_name']);
         $row['addtime_fmt']    = date('d/m/Y H:i', $row['addtime']);
-        $row['url_detail']     = htmlspecialchars(pv_admin_url('detail', 'id=' . (int)$row['id']));
+        $row['url_detail']     = htmlspecialchars(pv_admin_url('admin_detail', 'id=' . (int)$row['id']));
 
         $xtpl->assign('ROW', $row);
         $xtpl->parse('main.loop_rows');
     }
 }
 
-/* Pagination */
 if ($total_pages > 1) {
-    $xtpl->assign('PREV_URL',  htmlspecialchars(pv_admin_url('main', 'page=' . max(1, $page - 1) . $filter_qs)));
-    $xtpl->assign('NEXT_URL',  htmlspecialchars(pv_admin_url('main', 'page=' . min($total_pages, $page + 1) . $filter_qs)));
-    $xtpl->assign('PREV_DIS',  ($page <= 1) ? 'disabled' : '');
-    $xtpl->assign('NEXT_DIS',  ($page >= $total_pages) ? 'disabled' : '');
+    $xtpl->assign('PREV_URL', htmlspecialchars(pv_admin_url('admin_list', 'page=' . max(1, $page - 1) . $filter_qs)));
+    $xtpl->assign('NEXT_URL', htmlspecialchars(pv_admin_url('admin_list', 'page=' . min($total_pages, $page + 1) . $filter_qs)));
+    $xtpl->assign('PREV_DIS', ($page <= 1) ? 'disabled' : '');
+    $xtpl->assign('NEXT_DIS', ($page >= $total_pages) ? 'disabled' : '');
 
     $p_from = max(1, $page - 2);
     $p_to   = min($total_pages, $page + 2);
@@ -194,7 +191,7 @@ if ($total_pages > 1) {
         $xtpl->assign('PAGER', [
             'num'    => $i,
             'active' => ($i == $page) ? 'active' : '',
-            'url'    => htmlspecialchars(pv_admin_url('main', 'page=' . $i . $filter_qs)),
+            'url'    => htmlspecialchars(pv_admin_url('admin_list', 'page=' . $i . $filter_qs)),
         ]);
         $xtpl->parse('main.pagination.loop_pages');
     }

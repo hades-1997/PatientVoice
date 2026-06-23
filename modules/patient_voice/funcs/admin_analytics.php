@@ -2,7 +2,7 @@
 
 /**
  * @Project NUKEVIET 4.x
- * @Module  patient_voice — Analytics & reporting
+ * @Module  patient_voice — Admin: analytics & reporting
  * @License GNU/GPL version 2 or any later version
  */
 
@@ -30,7 +30,7 @@ $T    = NV_PREFIXLANG . '_' . $module_data;
 /* ── KPIs ────────────────────────────────────────── */
 $kpis = pv_kpis();
 
-/* ── Monthly trend (12 months) ───────────────────── */
+/* ── Monthly trend ───────────────────────────────── */
 $trend_raw    = pv_monthly_trend();
 $trend_labels = [];
 $trend_data   = [];
@@ -40,7 +40,7 @@ foreach ($trend_raw as $r) {
     $trend_data[]   = (int)$r['cnt'];
 }
 
-/* ── Channel distribution (selected period) ──────── */
+/* ── Channel distribution ────────────────────────── */
 $channel_raw       = pv_channel_dist($days);
 $channel_label_map = [
     PV_CHANNEL_HOTLINE        => $lang_module['channel_hotline'],
@@ -58,8 +58,8 @@ foreach ($channel_raw as $r) {
     $channel_data[]   = (int)$r['cnt'];
 }
 
-/* ── Type distribution (selected period) ─────────── */
-$type_raw       = $db->query(
+/* ── Type distribution ───────────────────────────── */
+$type_raw  = $db->query(
     "SELECT feedback_type, COUNT(*) AS cnt FROM {$T}_feedback
      WHERE addtime >= {$from} GROUP BY feedback_type"
 )->fetchAll(PDO::FETCH_ASSOC);
@@ -69,13 +69,11 @@ $type_names = ['Khiếu nại', 'Khen ngợi', 'Thắc mắc', 'Đề xuất', '
 $type_data  = array_fill(0, count($type_keys), 0);
 foreach ($type_raw as $r) {
     $idx = array_search((int)$r['feedback_type'], $type_keys);
-    if ($idx !== false) {
-        $type_data[$idx] = (int)$r['cnt'];
-    }
+    if ($idx !== false) { $type_data[$idx] = (int)$r['cnt']; }
 }
 
-/* ── Status distribution (selected period) ───────── */
-$status_raw     = $db->query(
+/* ── Status distribution ─────────────────────────── */
+$status_raw   = $db->query(
     "SELECT status, COUNT(*) AS cnt FROM {$T}_feedback
      WHERE addtime >= {$from} GROUP BY status"
 )->fetchAll(PDO::FETCH_ASSOC);
@@ -86,21 +84,17 @@ $status_names = ['Mới', 'Phân công', 'Đang xử lý', 'Chờ xác nhận', 
 $status_data  = array_fill(0, count($status_keys), 0);
 foreach ($status_raw as $r) {
     $idx = array_search((int)$r['status'], $status_keys);
-    if ($idx !== false) {
-        $status_data[$idx] = (int)$r['cnt'];
-    }
+    if ($idx !== false) { $status_data[$idx] = (int)$r['cnt']; }
 }
 
-/* ── Top departments by complaints ───────────────── */
+/* ── Top departments ─────────────────────────────── */
 $top_depts    = pv_top_dept_complaints(10);
 $max_dept_cnt = 1;
 foreach ($top_depts as $d) {
-    if ((int)$d['cnt'] > $max_dept_cnt) {
-        $max_dept_cnt = (int)$d['cnt'];
-    }
+    if ((int)$d['cnt'] > $max_dept_cnt) { $max_dept_cnt = (int)$d['cnt']; }
 }
 
-/* ── SLA breach queue (open + overdue) ───────────── */
+/* ── Breach queue ────────────────────────────────── */
 $now      = NV_CURRENTTIME;
 $breached = $db->query(
     "SELECT f.id, f.ticket_no, f.subject, f.sla_deadline, f.addtime, d.name AS dept_name
@@ -108,20 +102,18 @@ $breached = $db->query(
      LEFT JOIN {$T}_dept d ON d.id = f.dept_id
      WHERE f.sla_deadline > 0 AND f.sla_deadline < {$now}
        AND f.status NOT IN (5,6)
-     ORDER BY f.sla_deadline ASC
-     LIMIT 10"
+     ORDER BY f.sla_deadline ASC LIMIT 10"
 )->fetchAll(PDO::FETCH_ASSOC);
 
-/* ── Period selector tabs ─────────────────────────── */
+/* ── Period tabs ─────────────────────────────────── */
 $period_tabs = '';
-$ptab_map    = [
+foreach ([
     '30d' => $lang_module['analytics_30d'],
     '90d' => $lang_module['analytics_90d'],
     'ytd' => $lang_module['analytics_ytd'],
-];
-foreach ($ptab_map as $p => $plabel) {
+] as $p => $plabel) {
     $active       = ($p === $period) ? ' class="active"' : '';
-    $url          = htmlspecialchars(pv_admin_url('analytics', 'period=' . $p));
+    $url          = htmlspecialchars(pv_admin_url('admin_analytics', 'period=' . $p));
     $period_tabs .= '<li' . $active . '><a href="' . $url . '">' . $plabel . '</a></li>';
 }
 
@@ -138,8 +130,6 @@ $xtpl->assign('KPI', [
     'overdue'   => number_format($kpis['overdue']),
     'sla_pct'   => number_format($kpis['sla_pct'], 1),
 ]);
-
-/* Chart data as JSON for inline JS */
 $xtpl->assign('CHART', [
     'trend_labels'   => json_encode($trend_labels, JSON_UNESCAPED_UNICODE),
     'trend_data'     => json_encode($trend_data),
@@ -151,7 +141,6 @@ $xtpl->assign('CHART', [
     'status_data'    => json_encode($status_data),
 ]);
 
-/* Top depts */
 foreach ($top_depts as $d) {
     $pct = $max_dept_cnt > 0 ? round(((int)$d['cnt'] / $max_dept_cnt) * 100) : 0;
     $xtpl->assign('DEPT', [
@@ -162,7 +151,6 @@ foreach ($top_depts as $d) {
     $xtpl->parse('main.loop_top_depts');
 }
 
-/* Breach queue */
 if (empty($breached)) {
     $xtpl->parse('main.no_breach');
 } else {
@@ -175,7 +163,7 @@ if (empty($breached)) {
             'overdue_fmt' => $overdue_min < 60
                 ? $overdue_min . ' phút'
                 : round($overdue_min / 60, 1) . ' giờ',
-            'url_detail'  => htmlspecialchars(pv_admin_url('detail', 'id=' . (int)$b['id'] ?? 0)),
+            'url_detail'  => htmlspecialchars(pv_admin_url('admin_detail', 'id=' . (int)$b['id'])),
         ]);
         $xtpl->parse('main.loop_breach');
     }

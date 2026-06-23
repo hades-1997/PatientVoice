@@ -13,7 +13,7 @@ if (!defined('NV_ADMIN') or !defined('NV_MAINFILE')) {
 $module_version = [
     'name'         => 'PatientVoice',
     'modfuncs'     => 'main,detail,search',
-    'submenu'      => 'content,analytics,setting',
+    'submenu'      => 'admin_list,admin_form,admin_detail,admin_analytics,admin_setting,admin_del',
     'is_sysmod'    => 0,
     'virtual'      => 1,
     'version'      => '1.0.00',

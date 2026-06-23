@@ -11,10 +11,10 @@ if (!defined('NV_ADMIN')) {
 }
 
 /* Allow access to these admin ops */
-$allow_func = ['main', 'content', 'detail', 'analytics', 'setting', 'del_feedback'];
+$allow_func = ['admin_list', 'admin_form', 'admin_detail', 'admin_analytics', 'admin_setting', 'admin_del'];
 
 /* Admin sidebar menu */
-$submenu['main']      = $lang_module['menu_dashboard'];
-$submenu['content']   = $lang_module['menu_new_ticket'];
-$submenu['analytics'] = $lang_module['menu_analytics'];
-$submenu['setting']   = $lang_module['menu_setting'];
+$submenu['admin_list']      = $lang_module['menu_dashboard'];
+$submenu['admin_form']      = $lang_module['menu_new_ticket'];
+$submenu['admin_analytics'] = $lang_module['menu_analytics'];
+$submenu['admin_setting']   = $lang_module['menu_setting'];

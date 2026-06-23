@@ -2,7 +2,7 @@
 
 /**
  * @Project NUKEVIET 4.x
- * @Module  patient_voice — Module settings
+ * @Module  patient_voice — Admin: module settings
  * @License GNU/GPL version 2 or any later version
  */
 
@@ -12,7 +12,6 @@ if (!defined('NV_IS_FILE_ADMIN')) {
 
 $page_title = $lang_module['setting_title'];
 
-/* ── Config keys with defaults ───────────────────────────── */
 $defaults = [
     'sla_urgent'     => 4,
     'sla_high'       => 24,
@@ -23,7 +22,6 @@ $defaults = [
     'enable_sla'     => 1,
 ];
 
-/* Load current values */
 $config = [];
 foreach ($defaults as $key => $default) {
     $config[$key] = pv_config($key, $default);
@@ -32,7 +30,6 @@ foreach ($defaults as $key => $default) {
 $saved      = false;
 $save_error = false;
 
-/* ── POST: save ──────────────────────────────────────────── */
 if ($nv_Request->get_int('save', 'post', 0)) {
 
     $prefix = strtoupper(
@@ -52,8 +49,8 @@ if ($nv_Request->get_int('save', 'post', 0)) {
 
     $T   = NV_PREFIXLANG . '_' . $module_data;
     $sth = $db->prepare(
-        "INSERT INTO {$T}_config (name, value) VALUES (:name, :val)
-         ON DUPLICATE KEY UPDATE value = :val2"
+        "INSERT INTO {$T}_config (name,value) VALUES (:name,:val)
+         ON DUPLICATE KEY UPDATE value=:val2"
     );
 
     $ok = true;
@@ -73,7 +70,6 @@ if ($nv_Request->get_int('save', 'post', 0)) {
     }
 }
 
-/* ── XTemplate ───────────────────────────────────────────── */
 $xtpl = new XTemplate('setting.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
 
 $xtpl->assign('LANG',             $lang_module);
@@ -82,7 +78,7 @@ $xtpl->assign('NV_OP_VARIABLE',   NV_OP_VARIABLE);
 $xtpl->assign('NV_LANG_VARIABLE', NV_LANG_VARIABLE);
 $xtpl->assign('NV_LANG_DATA',     NV_LANG_DATA);
 $xtpl->assign('MODULE_NAME',      $module_name);
-$xtpl->assign('FORM_ACTION',      htmlspecialchars(pv_admin_url('setting')));
+$xtpl->assign('FORM_ACTION',      htmlspecialchars(pv_admin_url('admin_setting')));
 $xtpl->assign('CONFIG', [
     'sla_urgent'     => (int)$config['sla_urgent'],
     'sla_high'       => (int)$config['sla_high'],
@@ -93,12 +89,8 @@ $xtpl->assign('CONFIG', [
     'enable_sla_chk' => $config['enable_sla'] ? ' checked' : '',
 ]);
 
-if ($saved) {
-    $xtpl->parse('main.saved_msg');
-}
-if ($save_error) {
-    $xtpl->parse('main.error_msg');
-}
+if ($saved)      { $xtpl->parse('main.saved_msg'); }
+if ($save_error) { $xtpl->parse('main.error_msg'); }
 
 $xtpl->parse('main');
 $contents = $xtpl->text('main');

@@ -78,7 +78,7 @@
   <form method="get" action="{NV_BASE_ADMINURL}index.php" class="pv-filter-bar">
     <input type="hidden" name="{NV_LANG_VARIABLE}" value="{NV_LANG_DATA}" />
     <input type="hidden" name="{NV_NAME_VARIABLE}" value="{MODULE_NAME}" />
-    <input type="hidden" name="{NV_OP_VARIABLE}"   value="main" />
+    <input type="hidden" name="{NV_OP_VARIABLE}"   value="admin_list" />
     <div class="row" style="margin:0">
       <div class="col-sm-3" style="padding:0 4px 6px 0">
         <input type="text" name="q" class="form-control" placeholder="{LANG.filter_search_ph}" value="{F_Q}" />

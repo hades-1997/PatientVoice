@@ -143,7 +143,7 @@
         <form method="post" action="{FORM_ACTION}">
           <input type="hidden" name="{NV_LANG_VARIABLE}" value="{NV_LANG_DATA}" />
           <input type="hidden" name="{NV_NAME_VARIABLE}" value="{MODULE_NAME}" />
-          <input type="hidden" name="{NV_OP_VARIABLE}"   value="detail" />
+          <input type="hidden" name="{NV_OP_VARIABLE}"   value="admin_detail" />
           <input type="hidden" name="action" value="add_note" />
           <input type="hidden" name="id"     value="{FEEDBACK_ID}" />
           <textarea name="note_body" class="form-control" rows="3"
@@ -187,7 +187,7 @@
           <form method="post" action="{FORM_ACTION}">
             <input type="hidden" name="{NV_LANG_VARIABLE}" value="{NV_LANG_DATA}" />
             <input type="hidden" name="{NV_NAME_VARIABLE}" value="{MODULE_NAME}" />
-            <input type="hidden" name="{NV_OP_VARIABLE}"   value="detail" />
+            <input type="hidden" name="{NV_OP_VARIABLE}"   value="admin_detail" />
             <input type="hidden" name="action" value="assign" />
             <input type="hidden" name="id"     value="{FEEDBACK_ID}" />
             <select name="assignee_id" class="form-control" style="margin-bottom:6px;font-size:13px">
@@ -282,7 +282,7 @@
 
 <!-- Delete confirm form (hidden) -->
 <form id="pv_delete_form" method="post"
-  action="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&amp;{NV_NAME_VARIABLE}={MODULE_NAME}&amp;{NV_OP_VARIABLE}=del_feedback"
+  action="{NV_BASE_ADMINURL}index.php?{NV_LANG_VARIABLE}={NV_LANG_DATA}&amp;{NV_NAME_VARIABLE}={MODULE_NAME}&amp;{NV_OP_VARIABLE}=admin_del"
   style="display:none">
   <input type="hidden" name="id" value="{FEEDBACK_ID}" />
 </form>
